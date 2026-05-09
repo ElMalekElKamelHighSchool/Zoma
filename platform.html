@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنصة | حازم سالم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal'; background: #f8f9fa; margin: 0; direction: rtl; }
+        header { 
+            background: white; padding: 15px 5%; display: flex; 
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100;
+        }
+        .admin-lock { color: #ddd; cursor: pointer; transition: 0.3s; }
+        .admin-lock:hover { color: #2a5298; }
+        
+        .container { padding: 30px 5%; }
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .course-card { 
+            background: white; border-radius: 20px; overflow: hidden; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer;
+        }
+        .course-card:hover { transform: translateY(-10px); }
+        .course-img { height: 160px; background-size: cover; background-position: center; position: relative; }
+        .course-img::after { 
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.3); 
+        }
+        .course-info { padding: 20px; text-align: center; }
+        .file-btn { 
+            display: block; background: #f0f2f5; padding: 10px; margin-top: 10px; 
+            border-radius: 10px; text-decoration: none; color: #333; font-weight: bold; transition: 0.2s;
+        }
+        .file-btn:hover { background: #2a5298; color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-weight: 900; color: #2a5298; font-size: 1.3rem;">حازم سالم 🎓</div>
+    <div class="admin-lock" onclick="goAdmin()"><i class="fas fa-lock"></i></div>
+</header>
+
+<div class="container">
+    <h2 id="userNameDisplay" style="text-align: center; color: #34495e;"></h2>
+    <div class="course-grid" id="courseGrid"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+    // استخدم نفس firebaseConfig هنا
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const name = localStorage.getItem('zoma_user');
+    if(!name) window.location.href = "index.html";
+    document.getElementById('userNameDisplay').innerText = `منور يا ${name.split(' ')[0]} ❤️`;
+
+    const imgMap = {
+        "كيمياء": "https://images.unsplash.com/photo-1532187863486-abf9d39d9995?w=400",
+        "فيزياء": "https://images.unsplash.com/photo-1636466484362-c1335599422f?w=400",
+        "عربي": "https://images.unsplash.com/photo-1588615419958-4171619c7032?w=400",
+        "دين": "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=400",
+        "أحياء": "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=400",
+        "رياضيات": "https://images.unsplash.com/photo-1509228468518-180dd48a542a?w=400"
+    };
+
+    db.ref('courses').on('value', snap => {
+        const grid = document.getElementById('courseGrid');
+        grid.innerHTML = '';
+        snap.forEach(child => {
+            const course = child.val();
+            let filesHtml = '';
+            if(course.files) {
+                Object.values(course.files).forEach(f => {
+                    filesHtml += `<a href="${f.url}" target="_blank" class="file-btn">${f.title} <i class="fas fa-file-pdf"></i></a>`;
+                });
+            }
+            const img = imgMap[course.name] || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400";
+            grid.innerHTML += `
+                <div class="course-card">
+                    <div class="course-img" style="background-image: url('${img}')"></div>
+                    <div class="course-info">
+                        <h3>${course.name}</h3>
+                        ${filesHtml}
+                    </div>
+                </div>
+            `;
+        });
+    });
+
+    function goAdmin() {
+        const pass = prompt("دخل الشفرة السرية يا بطل:");
+        if(pass === "Zoma1151946") window.location.href = "admin.html";
+        else alert("الشفرة غلط يا حُب!");
+    }
+</script>
+</body>
+</html>
