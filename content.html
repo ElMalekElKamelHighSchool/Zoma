@@ -2,47 +2,42 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>محتوى الدرس</title>
+    <title>محتوى المادة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal'; background: #f0f2f5; padding: 20px; }
-        .lesson-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
-        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; margin-top: 15px; }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0; }
-        .pdf-link { display: inline-block; background: #1e3c72; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; margin-top: 10px; }
+        body { font-family: 'Tajawal'; background: #f8f9fa; padding: 20px; }
+        .lesson-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 10px rgba(0,0,0,0.05); border-right: 5px solid #1a2a6c; }
+        .video-box { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin-top: 15px; background: #000; }
+        .video-box iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
+        .pdf-btn { display: inline-block; background: #e74c3c; color: white; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h2 id="cTitle" style="text-align:center; color:#1e3c72"></h2>
-    <div id="contentList"></div>
+    <h1 id="subjectName" style="text-align:center; color:#1a2a6c"></h1>
+    <div id="contentGrid"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-        firebase.initializeApp(firebaseConfig);
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('id');
+        firebase.initializeApp({apiKey: "AIzaSyCSwNiOHDC0m6zoBx_BeAGyaE33Zmhuvi4", authDomain: "hazoma-60ed2.firebaseapp.com", databaseURL: "https://hazoma-60ed2-default-rtdb.firebaseio.com", projectId: "hazoma-60ed2", storageBucket: "hazoma-60ed2.firebasestorage.app", messagingSenderId: "962438384604", appId: "1:962438384604:web:52db16e5723a8f6d3bdd19", measurementId: "G-BWQ5CZR50F"});
+        const cName = new URLSearchParams(window.location.search).get('c');
+        document.getElementById('subjectName').innerText = `محتوى مادة ${cName}`;
 
-        firebase.database().ref('courses/' + courseId).on('value', snap => {
-            const data = snap.val();
-            document.getElementById('cTitle').innerText = data.name;
-            const list = document.getElementById('contentList');
-            list.innerHTML = '';
-            
-            if(data.items) {
-                Object.values(data.items).forEach(item => {
-                    let media = '';
-                    if(item.type === 'video') {
-                        // حماية بسيطة بمنع الاقتراحات وإخفاء اللوجو
-                        const vidId = item.link.split('v=')[1] || item.link.split('/').pop();
-                        media = `<div class="video-container"><iframe src="https://www.youtube.com/embed/${vidId}?rel=0&modestbranding=1&showinfo=0" allowfullscreen></iframe></div>`;
-                    } else {
-                        media = `<a href="${item.link}" target="_blank" class="pdf-btn pdf-link">فتح ملف الـ PDF <i class="fas fa-file-pdf"></i></a>`;
-                    }
-                    list.innerHTML += `<div class="lesson-card"><h3>${item.title}</h3>${media}</div>`;
-                });
-            }
+        firebase.database().ref('courses/' + cName + '/items').on('value', snap => {
+            const container = document.getElementById('contentGrid'); container.innerHTML = '';
+            snap.forEach(itemSnap => {
+                const item = itemSnap.val();
+                let media = '';
+                if(item.link.includes('youtube.com') || item.link.includes('youtu.be')) {
+                    const vidId = item.link.split('v=')[1] || item.link.split('/').pop();
+                    // فريم حماية: منع الاقتراحات وإخفاء معلومات الفيديو
+                    media = `<div class="video-box"><iframe src="https://www.youtube.com/embed/${vidId}?rel=0&modestbranding=1" allowfullscreen></iframe></div>`;
+                } else {
+                    media = `<a href="${item.link}" target="_blank" class="pdf-btn"><i class="fas fa-file-pdf"></i> فتح الملف الاسترشادي</a>`;
+                }
+                container.innerHTML += `<div class="lesson-card"><h3>${item.name}</h3>${media}</div>`;
+            });
         });
     </script>
 </body>
