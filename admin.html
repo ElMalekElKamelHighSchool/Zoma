@@ -5,72 +5,67 @@
     <title>لوحة التحكم | حازم سالم</title>
     <style>
         body { font-family: 'Tajawal'; padding: 20px; background: #eee; }
-        .admin-box { background: white; padding: 25px; border-radius: 20px; max-width: 900px; margin: auto; }
-        textarea { width: 100%; height: 100px; padding: 10px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; }
-        .bulk-info { font-size: 0.8rem; color: #666; background: #fffde7; padding: 10px; border-radius: 10px; border: 1px solid #ffe082; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
-        .btn-add { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+        .box { background: white; padding: 25px; border-radius: 20px; max-width: 900px; margin: auto; }
+        textarea { width: 100%; height: 120px; padding: 10px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        input, select { padding: 12px; margin: 5px 0; width: 100%; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn { background: #27ae60; color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: bold; margin: 5px 0; }
+        .item-row { display: flex; justify-content: space-between; background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 10px; }
+        .del { color: red; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="admin-box">
-        <h1>إدارة المنصة 👑 <small style="float:left"><a href="courses.html">خروج</a></small></h1>
+    <div class="box">
+        <h1>لوحة تحكم حازم سالم 👑 <small style="float:left"><a href="courses.html">رجوع</a></small></h1>
         
-        <div style="display:grid; gap:10px; background:#f9f9f9; padding:20px; border-radius:15px;">
-            <h3>إضافة/تحديث كورس</h3>
-            <select id="courseSelect">
-                <option value="كيمياء">كيمياء</option>
-                <option value="فيزياء">فيزياء</option>
-                <option value="عربي">لغة عربية</option>
-                <option value="رياضيات">رياضيات</option>
+        <div style="background:#f0f7ff; padding:15px; border-radius:15px; margin-bottom:20px;">
+            <h3>إضافة/تعديل مادة</h3>
+            <select id="courseName">
+                <option value="كيمياء">كيمياء</option><option value="فيزياء">فيزياء</option><option value="عربي">لغة عربية</option>
+                <option value="رياضيات">رياضيات</option><option value="أحياء">أحياء</option><option value="دين">تربية دينية</option>
             </select>
-            
-            <p class="bulk-info"><b>الرفع الجماعي من إكسيل:</b> انسخ العمودين من إكسيل (الاسم، اللينك) والصقهم هنا.</p>
-            <textarea id="bulkData" placeholder="اسم الدرس [مسافة/Tab] اللينك"></textarea>
-            
-            <label><input type="radio" name="type" value="pdf" checked> ملفات PDF</label>
-            <label><input type="radio" name="type" value="video"> فيديوهات يوتيوب</label>
-            
-            <button class="btn-add" onclick="bulkUpload()">رفع البيانات الآن 🚀</button>
+            <p><b>الرفع الجماعي من إكسيل:</b> انسخ عمودين (الاسم، الرابط) من إكسيل والصقهم هنا.</p>
+            <textarea id="bulkText" placeholder="اسم الدرس [Tab] الرابط"></textarea>
+            <button class="btn" onclick="uploadBulk()">رفع جماعي 🚀</button>
+            <hr>
+            <h4>أو إضافة يدوية:</h4>
+            <input type="text" id="manualName" placeholder="اسم الدرس">
+            <input type="text" id="manualLink" placeholder="رابط PDF أو يوتيوب">
+            <button class="btn" style="background:#2980b9" onclick="addManual()">إضافة يدوية ✅</button>
         </div>
 
-        <h3>الطلاب المسجلين</h3>
-        <div id="stds" style="background:#fff; height:150px; overflow-y:auto; padding:10px; border:1px solid #ddd;"></div>
+        <h3>الطلاب الذين سجلوا دخول (<span id="sCount">0</span>)</h3>
+        <div id="stds" style="max-height:150px; overflow-y:auto; border:1px solid #ddd; padding:10px;"></div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-        firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp({apiKey: "AIzaSyCSwNiOHDC0m6zoBx_BeAGyaE33Zmhuvi4", authDomain: "hazoma-60ed2.firebaseapp.com", databaseURL: "https://hazoma-60ed2-default-rtdb.firebaseio.com", projectId: "hazoma-60ed2", storageBucket: "hazoma-60ed2.firebasestorage.app", messagingSenderId: "962438384604", appId: "1:962438384604:web:52db16e5723a8f6d3bdd19", measurementId: "G-BWQ5CZR50F"});
         const db = firebase.database();
 
-        function bulkUpload() {
-            const courseName = document.getElementById('courseSelect').value;
-            const rawData = document.getElementById('bulkData').value;
-            const type = document.querySelector('name="type"]:checked').value;
-            
-            if(!rawData) return alert("انسخ البيانات من إكسيل أولاً!");
-
-            const rows = rawData.split('\n');
-            const courseRef = db.ref('courses').child(courseName);
-            courseRef.update({ name: courseName });
-
-            rows.forEach(row => {
-                const parts = row.split('\t'); // التقسيم بناءً على Tab (زي الإكسيل)
-                if(parts.length >= 2) {
-                    courseRef.child('items').push({
-                        title: parts[0].trim(),
-                        link: parts[1].trim(),
-                        type: type
-                    });
-                }
+        function uploadBulk() {
+            const course = document.getElementById('courseName').value;
+            const text = document.getElementById('bulkText').value;
+            if(!text) return alert("انسخ البيانات من إكسيل أولاً!");
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                const parts = line.split('\t'); // التقسيم بناءً على مسافة الإكسيل
+                if(parts.length >= 2) db.ref('courses/'+course+'/items').push({ name: parts[0].trim(), link: parts[1].trim() });
             });
-            alert("تم الرفع بنجاح يا حازم!");
-            document.getElementById('bulkData').value = '';
+            alert("تم الرفع الجماعي!"); document.getElementById('bulkText').value = '';
+        }
+
+        function addManual() {
+            const course = document.getElementById('courseName').value;
+            const name = document.getElementById('manualName').value;
+            const link = document.getElementById('manualLink').value;
+            if(!name || !link) return alert("املأ البيانات!");
+            db.ref('courses/'+course+'/items').push({ name: name, link: link });
+            alert("تمت الإضافة!");
         }
 
         db.ref('students').on('value', snap => {
+            document.getElementById('sCount').innerText = snap.numChildren();
             const div = document.getElementById('stds'); div.innerHTML = '';
             snap.forEach(s => div.innerHTML += `<div>👤 ${s.val().name}</div>`);
         });
