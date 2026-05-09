@@ -3,113 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة حازم سالم | للملخصات</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Amiri&display=swap" rel="stylesheet">
+    <title>بوابة حازم سالم 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --main-bg: #f0f2f5; --primary: #2a5298; --accent: #1e3c72; --gold: #f1c40f; }
-        body { font-family: 'Tajawal', sans-serif; background: var(--main-bg); margin: 0; overflow: hidden; }
-        
-        /* واجهة الترحيب */
-        #welcome-screen {
-            height: 100vh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            display: flex; align-items: center; justify-content: center;
-            text-align: center; color: white; padding: 20px;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            padding: 40px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); max-width: 450px; width: 100%;
-        }
-        input {
-            width: 100%; padding: 15px; border-radius: 15px; border: none; margin-top: 20px;
-            font-family: 'Tajawal'; text-align: center; font-size: 1.1rem; outline: none;
-        }
-        .btn-enter {
-            background: var(--gold); color: #1e3c72; border: none; padding: 15px 40px;
-            border-radius: 15px; font-weight: 900; margin-top: 20px; cursor: pointer;
-            width: 100%; transition: 0.3s; font-size: 1.2rem;
-        }
-        .btn-enter:hover { transform: scale(1.05); }
-
-        /* شاشة الانتقال */
-        #transition-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 9999; display: none;
-            flex-direction: column; align-items: center; justify-content: center; text-align: center;
-        }
-        .quran-text { font-family: 'Amiri', serif; font-size: 2.2rem; color: #27ae60; margin-bottom: 20px; }
-        .pray-prophet { font-size: 1.3rem; color: #34495e; font-weight: bold; }
+        :root { --main: #1e3c72; --gold: #f1c40f; }
+        body { font-family: 'Tajawal', sans-serif; margin: 0; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .welcome-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); z-index: -1; }
+        .card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); padding: 40px; border-radius: 30px; text-align: center; color: white; width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: none; margin-top: 20px; text-align: center; font-family: 'Tajawal'; font-size: 1.1rem; outline: none; }
+        .btn { background: var(--gold); color: #1e3c72; border: none; padding: 15px; border-radius: 15px; width: 100%; margin-top: 20px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 1.2rem; }
+        .btn:hover { transform: scale(1.05); }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .quran { font-family: 'Amiri', serif; font-size: 2.5rem; color: #27ae60; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <div class="welcome-bg"></div>
+    <audio id="praySnd" src="https://www.islamcan.com/audio/dua/salawat.mp3"></audio>
 
-<audio id="salawat-audio" src="https://www.islamcan.com/audio/dua/salawat.mp3"></audio>
-
-<div id="transition-overlay">
-    <div class="quran-text" id="verse"></div>
-    <div class="pray-prophet">
-        <i class="fas fa-heart" style="color: #e74c3c;"></i><br>
-        صلي على محمد.. بشراك بالخير يا بطل
-        <p style="font-size: 0.8rem; color: #95a5a6;">(الْبَخِيلُ مَنْ ذُكِرْتُ عِنْدَهُ فَلَمْ يُصَلِّ عَلَيَّ)</p>
+    <div id="overlay">
+        <div class="quran" id="verse"></div>
+        <div style="font-size: 1.2rem; color: #34495e;">
+            <b>صلي على محمد ﷺ</b><br>
+            بشراك بالخير.. استعن بالله<br>
+            <small style="color: #e74c3c;">(الْبَخِيلُ مَنْ ذُكِرْتُ عِنْدَهُ فَلَمْ يُصَلِّ عَلَيَّ)</small>
+        </div>
     </div>
-</div>
 
-<section id="welcome-screen">
-    <div class="glass-card">
-        <div style="font-size: 4rem; margin-bottom: 15px;"><i class="fas fa-heart"></i></div>
+    <div class="card">
+        <i class="fas fa-heart" style="color: #ff4757; font-size: 3.5rem; margin-bottom: 20px;"></i>
         <h1>مساء الخير يا حُب ❤️</h1>
-        <p>العمل ده لوجه الله تعالى، أتمنى أكون بفيدك.. لو استفدت بجد متنسونيش من دعواتكم 🙏</p>
-        <p style="font-weight: bold;">أخوكم حازم سالم</p>
-        <input type="text" id="studentName" placeholder="سجل اسمك هنا يا بطل...">
-        <button class="btn-enter" onclick="startApp()">دخول للمنصة ✨</button>
+        <p>العمل ده لوجه الله تعالى.. لو استفدت بجد متنسونيش من دعواتكم 🙏</p>
+        <p><b>أخوكم حازم سالم</b></p>
+        <input type="text" id="uName" placeholder="سجل اسمك يا بطل عشان يحفظ دخولك...">
+        <button class="btn" onclick="go()">دخول للمنصة ✨</button>
     </div>
-</section>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCSwNiOHDC0m6zoBx_BeAGyaE33Zmhuvi4",
-        authDomain: "hazoma-60ed2.firebaseapp.com",
-        databaseURL: "https://hazoma-60ed2-default-rtdb.firebaseio.com",
-        projectId: "hazoma-60ed2",
-        storageBucket: "hazoma-60ed2.firebasestorage.app",
-        messagingSenderId: "962438384604",
-        appId: "1:962438384604:web:52db16e5723a8f6d3bdd19",
-        measurementId: "G-BWQ5CZR50F"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyCSwNiOHDC0m6zoBx_BeAGyaE33Zmhuvi4", authDomain: "hazoma-60ed2.firebaseapp.com", databaseURL: "https://hazoma-60ed2-default-rtdb.firebaseio.com", projectId: "hazoma-60ed2", storageBucket: "hazoma-60ed2.firebasestorage.app", messagingSenderId: "962438384604", appId: "1:962438384604:web:52db16e5723a8f6d3bdd19", measurementId: "G-BWQ5CZR50F" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    const verses = [
-        "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
-        "وَمَنْ يَتَّقِ اللَّهَ يَجْعَلْ لَهُ مَخْرَجًا",
-        "وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا",
-        "إِنَّا لَا نُضِيعُ أَجْرَ مَنْ أَحْسَنَ عَمَلًا"
-    ];
+        if(localStorage.getItem('zomaUser')) window.location.href="platform.html";
 
-    if(localStorage.getItem('zoma_user')) {
-        window.location.href = "platform.html";
-    }
-
-    function startApp() {
-        const name = document.getElementById('studentName').value.trim();
-        if(!name) return alert("اكتب اسمك يا بطل!");
-
-        db.ref('students').push({ name: name, time: Date.now() });
-        localStorage.setItem('zoma_user', name);
-
-        const overlay = document.getElementById('transition-overlay');
-        document.getElementById('verse').innerText = verses[Math.floor(Math.random()*verses.length)];
-        overlay.style.display = 'flex';
-        document.getElementById('salawat-audio').play();
-
-        setTimeout(() => {
-            window.location.href = "platform.html";
-        }, 3500);
-    }
-</script>
+        function go() {
+            const n = document.getElementById('uName').value.trim();
+            if(!n) return alert("اكتب اسمك يا حبيب قلبي!");
+            
+            db.ref('students').push({ name: n, time: Date.now() });
+            localStorage.setItem('zomaUser', n);
+            
+            const v = ["إِنَّ مَعَ الْعُسْرِ يُسْرًا", "وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا", "وَمَنْ يَتَّقِ اللَّهَ يَجْعَلْ لَهُ مَخْرَجًا"];
+            document.getElementById('verse').innerText = v[Math.floor(Math.random()*v.length)];
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('praySnd').play();
+            setTimeout(() => window.location.href="platform.html", 3500);
+        }
+    </script>
 </body>
 </html>
