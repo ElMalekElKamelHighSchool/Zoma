@@ -2,73 +2,205 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة التحكم | حازم سالم</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم الاحترافية | حازم سالم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal'; padding: 20px; background: #eee; }
-        .box { background: white; padding: 25px; border-radius: 20px; max-width: 900px; margin: auto; }
-        textarea { width: 100%; height: 120px; padding: 10px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
-        input, select { padding: 12px; margin: 5px 0; width: 100%; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
-        .btn { background: #27ae60; color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: bold; margin: 5px 0; }
-        .item-row { display: flex; justify-content: space-between; background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 10px; }
-        .del { color: red; cursor: pointer; }
+        :root { --primary: #1a2a6c; --secondary: #b21f1f; --success: #27ae60; --bg: #f4f7f6; }
+        body { font-family: 'Tajawal', sans-serif; background: var(--bg); margin: 0; display: flex; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background: var(--primary); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.5rem; text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .nav-btn { width: 100%; padding: 15px; background: none; border: none; color: white; text-align: right; font-family: 'Tajawal'; cursor: pointer; border-radius: 10px; margin-bottom: 10px; transition: 0.3s; font-size: 1.1rem; }
+        .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,0.1); color: #fdbb2d; }
+        .nav-btn i { margin-left: 10px; width: 25px; }
+
+        /* Main Content */
+        .main-content { margin-right: 260px; width: calc(100% - 260px); padding: 30px; box-sizing: border-box; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Tables & Lists */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px; text-align: right; border-bottom: 1px solid #eee; }
+        th { background: #f9f9f9; color: var(--primary); }
+        .btn-del { color: #e74c3c; cursor: pointer; border: none; background: none; font-size: 1.1rem; }
+        
+        /* Forms */
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; font-family: 'Tajawal'; box-sizing: border-box; }
+        .action-btn { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; font-family: 'Tajawal'; transition: 0.3s; }
+        .action-btn:hover { transform: scale(1.02); background: #219150; }
+
+        .course-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9fa; margin-bottom: 10px; border-radius: 10px; border-right: 4px solid var(--primary); }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>لوحة تحكم حازم سالم 👑 <small style="float:left"><a href="courses.html">رجوع</a></small></h1>
-        
-        <div style="background:#f0f7ff; padding:15px; border-radius:15px; margin-bottom:20px;">
-            <h3>إضافة/تعديل مادة</h3>
-            <select id="courseName">
-                <option value="كيمياء">كيمياء</option><option value="فيزياء">فيزياء</option><option value="عربي">لغة عربية</option>
-                <option value="رياضيات">رياضيات</option><option value="أحياء">أحياء</option><option value="دين">تربية دينية</option>
-            </select>
-            <p><b>الرفع الجماعي من إكسيل:</b> انسخ عمودين (الاسم، الرابط) من إكسيل والصقهم هنا.</p>
-            <textarea id="bulkText" placeholder="اسم الدرس [Tab] الرابط"></textarea>
-            <button class="btn" onclick="uploadBulk()">رفع جماعي 🚀</button>
-            <hr>
-            <h4>أو إضافة يدوية:</h4>
-            <input type="text" id="manualName" placeholder="اسم الدرس">
-            <input type="text" id="manualLink" placeholder="رابط PDF أو يوتيوب">
-            <button class="btn" style="background:#2980b9" onclick="addManual()">إضافة يدوية ✅</button>
+
+    <div class="sidebar">
+        <h2>لوحة التحكم 👑</h2>
+        <button class="nav-btn active" onclick="showSec('stats')"><i class="fas fa-chart-line"></i> الإحصائيات</button>
+        <button class="nav-btn" onclick="showSec('students')"><i class="fas fa-users"></i> الطلاب</button>
+        <button class="nav-btn" onclick="showSec('manage')"><i class="fas fa-book-open"></i> إدارة المحتوى</button>
+        <button class="nav-btn" onclick="location.href='courses.html'"><i class="fas fa-sign-out-alt"></i> خروج للمنصة</button>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 id="pageTitle">مرحباً بك يا مستشار حازم</h1>
+            <div style="color: #666;"><i class="far fa-calendar-alt"></i> <span id="date"></span></div>
         </div>
 
-        <h3>الطلاب الذين سجلوا دخول (<span id="sCount">0</span>)</h3>
-        <div id="stds" style="max-height:150px; overflow-y:auto; border:1px solid #ddd; padding:10px;"></div>
+        <div id="stats" class="section active">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card" style="text-align: center;">
+                    <h3 style="color:#666">إجمالي الطلاب</h3>
+                    <h1 id="totalStds" style="font-size: 3rem; color: var(--primary);">0</h1>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <h3 style="color:#666">إجمالي الكورسات</h3>
+                    <h1 id="totalCourses" style="font-size: 3rem; color: var(--secondary);">0</h1>
+                </div>
+            </div>
+        </div>
+
+        <div id="students" class="section">
+            <div class="card">
+                <h3>قائمة الطلاب المسجلين</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم الطالب</th>
+                            <th>وقت التسجيل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stdsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="manage" class="section">
+            <div class="card">
+                <h3>إضافة محتوى جديد (جماعي أو يدوي)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label>اختر المادة:</label>
+                        <select id="selCourse">
+                            <option value="كيمياء">كيمياء</option><option value="فيزياء">فيزياء</option>
+                            <option value="عربي">لغة عربية</option><option value="رياضيات">رياضيات</option>
+                            <option value="أحياء">أحياء</option><option value="دين">تربية دينية</option>
+                        </select>
+                        <p style="font-size: 0.8rem; color: #666;">للرفع الجماعي: انسخ عمودين (الاسم، الرابط) من إكسيل.</p>
+                        <textarea id="bulkData" placeholder="اسم الدرس [Tab] الرابط"></textarea>
+                        <button class="action-btn" onclick="saveBulk()">رفع جماعي 🚀</button>
+                    </div>
+                    <div style="border-right: 1px solid #eee; padding-right: 20px;">
+                        <h4>إضافة درس واحد:</h4>
+                        <input type="text" id="mName" placeholder="اسم الدرس">
+                        <input type="text" id="mLink" placeholder="الرابط (PDF أو يوتيوب)">
+                        <button class="action-btn" style="background:var(--primary)" onclick="saveOne()">حفظ الدرس ✅</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>تصفح وتعديل الكورسات المضافة</h3>
+                <div id="coursesList">
+                    </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-        firebase.initializeApp({apiKey: "AIzaSyCSwNiOHDC0m6zoBx_BeAGyaE33Zmhuvi4", authDomain: "hazoma-60ed2.firebaseapp.com", databaseURL: "https://hazoma-60ed2-default-rtdb.firebaseio.com", projectId: "hazoma-60ed2", storageBucket: "hazoma-60ed2.firebasestorage.app", messagingSenderId: "962438384604", appId: "1:962438384604:web:52db16e5723a8f6d3bdd19", measurementId: "G-BWQ5CZR50F"});
+        const firebaseConfig = { apiKey: "AIzaSyCSwNiOHDC0m6zoBx_BeAGyaE33Zmhuvi4", authDomain: "hazoma-60ed2.firebaseapp.com", databaseURL: "https://hazoma-60ed2-default-rtdb.firebaseio.com", projectId: "hazoma-60ed2", storageBucket: "hazoma-60ed2.firebasestorage.app", messagingSenderId: "962438384604", appId: "1:962438384604:web:52db16e5723a8f6d3bdd19", measurementId: "G-BWQ5CZR50F" };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function uploadBulk() {
-            const course = document.getElementById('courseName').value;
-            const text = document.getElementById('bulkText').value;
-            if(!text) return alert("انسخ البيانات من إكسيل أولاً!");
-            const lines = text.split('\n');
-            lines.forEach(line => {
-                const parts = line.split('\t'); // التقسيم بناءً على مسافة الإكسيل
-                if(parts.length >= 2) db.ref('courses/'+course+'/items').push({ name: parts[0].trim(), link: parts[1].trim() });
-            });
-            alert("تم الرفع الجماعي!"); document.getElementById('bulkText').value = '';
+        document.getElementById('date').innerText = new Date().toLocaleDateString('ar-EG');
+
+        function showSec(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
-        function addManual() {
-            const course = document.getElementById('courseName').value;
-            const name = document.getElementById('manualName').value;
-            const link = document.getElementById('manualLink').value;
-            if(!name || !link) return alert("املأ البيانات!");
-            db.ref('courses/'+course+'/items').push({ name: name, link: link });
-            alert("تمت الإضافة!");
-        }
-
+        // جلب الطلاب
         db.ref('students').on('value', snap => {
-            document.getElementById('sCount').innerText = snap.numChildren();
-            const div = document.getElementById('stds'); div.innerHTML = '';
-            snap.forEach(s => div.innerHTML += `<div>👤 ${s.val().name}</div>`);
+            const table = document.getElementById('stdsTable');
+            table.innerHTML = '';
+            let count = 0;
+            snap.forEach(s => {
+                const d = s.val();
+                table.innerHTML += `<tr><td>👤 ${d.name}</td><td>${new Date(d.time).toLocaleString('ar-EG')}</td></tr>`;
+                count++;
+            });
+            document.getElementById('totalStds').innerText = count;
         });
+
+        // الرفع الجماعي
+        function saveBulk() {
+            const course = document.getElementById('selCourse').value;
+            const data = document.getElementById('bulkData').value;
+            if(!data) return alert("الرجاء لصق بيانات الإكسيل");
+            const rows = data.split('\n');
+            rows.forEach(r => {
+                const p = r.split('\t');
+                if(p.length >= 2) db.ref('courses/'+course+'/items').push({ name: p[0].trim(), link: p[1].trim() });
+            });
+            alert("تم الرفع بنجاح!"); document.getElementById('bulkData').value = '';
+        }
+
+        // الحفظ اليدوي
+        function saveOne() {
+            const course = document.getElementById('selCourse').value;
+            const n = document.getElementById('mName').value;
+            const l = document.getElementById('mLink').value;
+            if(!n || !l) return alert("املأ البيانات أولاً");
+            db.ref('courses/'+course+'/items').push({ name: n, link: l });
+            alert("تمت الإضافة!"); document.getElementById('mName').value = ''; document.getElementById('mLink').value = '';
+        }
+
+        // عرض الكورسات ومحتوياتها للحذف والتعديل
+        db.ref('courses').on('value', snap => {
+            const list = document.getElementById('coursesList');
+            list.innerHTML = '';
+            let courseCount = 0;
+            snap.forEach(courseSnap => {
+                courseCount++;
+                const courseName = courseSnap.key;
+                let itemsHtml = '';
+                
+                courseSnap.child('items').forEach(itemSnap => {
+                    itemsHtml += `
+                        <div class="course-item">
+                            <span>📄 ${itemSnap.val().name}</span>
+                            <button class="btn-del" onclick="deleteItem('${courseName}', '${itemSnap.key}')"><i class="fas fa-trash-alt"></i></button>
+                        </div>`;
+                });
+
+                list.innerHTML += `
+                    <div style="margin-bottom:20px; border:1px solid #eee; padding:15px; border-radius:15px;">
+                        <h4 style="color:var(--secondary); border-bottom:2px solid #eee; padding-bottom:10px;">📦 مادة: ${courseName}</h4>
+                        ${itemsHtml || '<p style="color:#999">لا توجد دروس مضافة بعد</p>'}
+                    </div>`;
+            });
+            document.getElementById('totalCourses').innerText = courseCount;
+        });
+
+        function deleteItem(course, itemId) {
+            if(confirm("هل أنت متأكد من حذف هذا الدرس؟")) {
+                db.ref('courses/' + course + '/items/' + itemId).remove();
+            }
+        }
     </script>
 </body>
 </html>
